@@ -1,7 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const rootPath = process.cwd();
-const context = path.join(rootPath, "src");
+const context = path.join(rootPath, 'src');
 const outputPath = path.join(rootPath, 'dist');
 const bannerPlugin = require(path.join(__dirname, 'plugins', 'banner.js'));
 
@@ -13,12 +13,7 @@ module.exports = {
   target: 'web',
   output: {
     filename: '[name].js',
-    library: {
-      commonjs: "dicom-parser",
-      commonjs2: "dicom-parser",
-      amd: "dicom-parser",
-      root: 'dicomParser'
-    },
+    library: '[name]',
     libraryTarget: 'umd',
     path: outputPath,
     umdNamedDefine: true
