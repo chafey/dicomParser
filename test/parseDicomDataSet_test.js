@@ -90,7 +90,7 @@ describe('parseDicomDataSet', () => {
         0xfe, 0xff, 0x00, 0xe0, 0x0A, 0x00, 0x00, 0x00,
       ];
       const callback = (tag) => {
-        return undefined; // nothing should be interpreted as an SQ
+        return (tag === 'x7fe00010') ? false : undefined;
       };
       const byteArray = convertToByteArray(bytes);
       const byteStream = new ByteStream(littleEndianByteArrayParser, byteArray);

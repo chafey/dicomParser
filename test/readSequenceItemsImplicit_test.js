@@ -28,7 +28,7 @@ describe('readSequenceItemsImplicit', () => {
                  0xfe, 0xff, 0xdd, 0xe0, 0x00, 0x00, 0x00, 0x00,
     ];
     const callback = (tag) => {
-      return undefined; // nothing should be interpreted as an SQ
+      return (tag === 'x7fe00010') ? false : undefined;
     };
     const byteStream = new ByteStream(littleEndianByteArrayParser, convertToByteArray(bytes));
     const element = { length: 0xFFFFFFFF };
@@ -95,7 +95,7 @@ describe('readSequenceItemsImplicit', () => {
                  0xfe, 0xff, 0xdd, 0xe0, 0x00, 0x00, 0x00, 0x00,
     ];
     const callback = (tag) => {
-      return undefined; // nothing should be interpreted as an SQ
+      return (tag === 'x7fe00010') ? false : undefined;
     };
     const byteStream = new ByteStream(littleEndianByteArrayParser, convertToByteArray(bytes));
     const element = { length: 0xFFFFFFFF };
@@ -128,7 +128,7 @@ describe('readSequenceItemsImplicit', () => {
                  0xfe, 0xff, 0x00, 0xe0, 0x0A, 0x00, 0x00, 0x00,
     ];
     const callback = (tag) => {
-      return undefined; // nothing should be interpreted as an SQ
+      return (tag === 'x7fe00010') ? false : undefined;
     };
     const byteStream = new ByteStream(littleEndianByteArrayParser, convertToByteArray(bytes));
     const element = {dataOffset: 0, length: 24};
