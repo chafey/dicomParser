@@ -3,6 +3,32 @@ import ByteStream from '../src/byteStream';
 import readDicomElementExplicit from '../src/readDicomElementExplicit';
 import littleEndianByteArrayParser from '../src/littleEndianByteArrayParser';
 
+function testFourByteLength(vr) {
+    // Arrange
+    const byteArray = new Uint8Array(16909060 + 12);
+
+    byteArray[0] = 0x11;
+    byteArray[1] = 0x22;
+    byteArray[2] = 0x33;
+    byteArray[3] = 0x44;
+    byteArray[4] = vr.charCodeAt(0);
+    byteArray[5] = vr.charCodeAt(1);
+    byteArray[6] = 0x00;
+    byteArray[7] = 0x00;
+    byteArray[8] = 0x04; // 4    overall length = 16909060 = (16777216 + 131072 + 768 + 4)
+    byteArray[9] = 0x03; // 768
+    byteArray[10] = 0x02; // 131072
+    byteArray[11] = 0x01; // 16777216
+
+    const byteStream = new ByteStream(littleEndianByteArrayParser, byteArray);
+
+    // Act
+    const element = readDicomElementExplicit(byteStream);
+
+    // Assert
+    expect(element.length).to.equal(16909060);
+}
+
 describe('readDicomElementExplicit', () => {
 
   it('should return an element', () => {
@@ -77,7 +103,27 @@ describe('readDicomElementExplicit', () => {
     expect(element.length).to.equal(513);
   });
 
-  it('should parse element for 4 bytes length correctly', () => {
+  it('should parse element for 4 bytes length correctly (OB)', () => {
+    testFourByteLength('OB');
+  });
+
+  it('should parse element for 4 bytes length correctly (OD)', () => {
+    testFourByteLength('OD');
+  });
+
+  it('should parse element for 4 bytes length correctly (OF)', () => {
+    testFourByteLength('OF');
+  });
+
+  it('should parse element for 4 bytes length correctly (OL)', () => {
+    testFourByteLength('OL');
+  });
+
+  it('should parse element for 4 bytes length correctly (OW)', () => {
+    testFourByteLength('OW');
+  });
+
+  it('should parse element for 4 bytes length correctly (SQ)', () => {
     // Arrange
     const byteArray = new Uint8Array(16909060 + 12);
 
@@ -85,14 +131,22 @@ describe('readDicomElementExplicit', () => {
     byteArray[1] = 0x22;
     byteArray[2] = 0x33;
     byteArray[3] = 0x44;
-    byteArray[4] = 0x4F; // OB
-    byteArray[5] = 0x42;
+    byteArray[4] = 0x53; // SQ
+    byteArray[5] = 0x51;
     byteArray[6] = 0x00;
     byteArray[7] = 0x00;
-    byteArray[8] = 0x04; // 4    overall length = 16909060 = (16777216 + 131072 + 768 + 4)
-    byteArray[9] = 0x03; // 768
-    byteArray[10] = 0x02; // 131072
-    byteArray[11] = 0x01; // 16777216
+    byteArray[8] = 0x08; // Length = 8
+    byteArray[9] = 0x00;
+    byteArray[10] = 0x00;
+    byteArray[11] = 0x00;
+    byteArray[12] = 0xFE; // Begin item of zero length
+    byteArray[13] = 0xFF;
+    byteArray[14] = 0x00;
+    byteArray[15] = 0xE0;
+    byteArray[16] = 0x00;
+    byteArray[17] = 0x00;
+    byteArray[18] = 0x00;
+    byteArray[19] = 0x00;
 
     const byteStream = new ByteStream(littleEndianByteArrayParser, byteArray);
 
@@ -100,7 +154,23 @@ describe('readDicomElementExplicit', () => {
     const element = readDicomElementExplicit(byteStream);
 
     // Assert
-    expect(element.length).to.equal(16909060);
+    expect(element.length).to.equal(8);
+  });
+
+  it('should parse element for 4 bytes length correctly (UC)', () => {
+    testFourByteLength('UC');
+  });
+
+  it('should parse element for 4 bytes length correctly (UR)', () => {
+    testFourByteLength('UR');
+  });
+
+  it('should parse element for 4 bytes length correctly (UT)', () => {
+    testFourByteLength('UT');
+  });
+
+  it('should parse element for 4 bytes length correctly (UN)', () => {
+    testFourByteLength('UN');
   });
 
   it('should parse element and return the right data offset', () => {
