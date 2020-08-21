@@ -39,6 +39,7 @@ export default function readPart10Header (byteArray, options) {
 
     const warnings = [];
     const elements = {};
+    const metaHeaderDataSet = new DataSet(littleEndianByteStream.byteArrayParser, littleEndianByteStream.byteArray, elements);
 
     while (littleEndianByteStream.position < littleEndianByteStream.byteArray.length) {
       const position = littleEndianByteStream.position;
@@ -51,10 +52,14 @@ export default function readPart10Header (byteArray, options) {
       // Cache the littleEndianByteArrayParser for meta header elements, since the rest of the data set may be big endian
       // and this parser will be needed later if the meta header values are to be read.
       element.parser = littleEndianByteArrayParser;
+      
+      // If Transfer Syntax Tag(or other tag) already exist, Do not override.
+      if (elements[element.tag]) {
+        continue;
+      }
       elements[element.tag] = element;
     }
 
-    const metaHeaderDataSet = new DataSet(littleEndianByteStream.byteArrayParser, littleEndianByteStream.byteArray, elements);
 
     metaHeaderDataSet.warnings = littleEndianByteStream.warnings;
     metaHeaderDataSet.position = littleEndianByteStream.position;
