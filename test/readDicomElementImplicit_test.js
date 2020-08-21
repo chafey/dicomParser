@@ -142,6 +142,42 @@ describe('readDicomElementImplicit', () => {
     expect(invoker).to.throw();
   });
 
+  it('bytes resembling an item tag look like an implicit SQ item when using a callback that returns undefined', () => {
+    // Arrange
+    // (7fe0,0010)                               8
+    const bytes = [0xe0, 0x7f, 0x10, 0x00, 0x08, 0x00, 0x00, 0x00,
+      // Looks like an item tag, but isn't since it's within pixel data
+      0xfe, 0xff, 0x00, 0xe0, 0x0A, 0x00, 0x00, 0x00,
+    ];
+    const callback = (tag) => {
+      return undefined;
+    };
+    const byteStream = new ByteStream(littleEndianByteArrayParser, convertToByteArray(bytes));
+    const invoker = () => readDicomElementImplicit(byteStream, callback);
+
+    // Act/Assert
+    // invalid value for parameter 'maxPosition'
+    expect(invoker).to.throw();
+  });
+
+  it('bytes resembling an item tag look like an implicit SQ item when using a callback that returns true', () => {
+    // Arrange
+    // (7fe0,0010)                               8
+    const bytes = [0xe0, 0x7f, 0x10, 0x00, 0x08, 0x00, 0x00, 0x00,
+      // Looks like an item tag, but isn't since it's within pixel data
+      0xfe, 0xff, 0x00, 0xe0, 0x0A, 0x00, 0x00, 0x00,
+    ];
+    const callback = (tag) => {
+      return true;
+    };
+    const byteStream = new ByteStream(littleEndianByteArrayParser, convertToByteArray(bytes));
+    const invoker = () => readDicomElementImplicit(byteStream, callback);
+
+    // Act/Assert
+    // invalid value for parameter 'maxPosition'
+    expect(invoker).to.throw();
+  });
+
   it('bytes resembling an item tag are not treated like an SQ item when using a callback', () => {
     // Arrange
     // (7fe0,0010)                               8
@@ -150,7 +186,7 @@ describe('readDicomElementImplicit', () => {
       0xfe, 0xff, 0x00, 0xe0, 0x0A, 0x00, 0x00, 0x00,
     ];
     const callback = (tag) => {
-      return undefined; // nothing should be interpreted as an SQ
+      return (tag === 'x7fe00010') ? false : undefined;
     };
     const byteStream = new ByteStream(littleEndianByteArrayParser, convertToByteArray(bytes));
 
@@ -179,7 +215,45 @@ describe('readDicomElementImplicit', () => {
     expect(invoker).to.throw();
   });
 
-  it('bytes resembling an end-of-sequence tag are not treated like an SQ item when using a callback', () => {
+  it('bytes resembling an end-of-sequence tag look like an implicit SQ item when using a callback that returns undefined', () => {
+    // Arrange
+    // (7fe0,0010)                                           11
+    const bytes = [0xe0, 0x7f, 0x10, 0x00, 0x0B, 0x00, 0x00, 0x00,
+      // Looks like a sequence delimiter tag, but isn't since it's within pixel data
+      0xfe, 0xff, 0xdd, 0xe0, 0x0A, 0x00, 0x00, 0x00,
+      0x12, 0x43, 0x98,
+    ];
+    const callback = (tag) => {
+      return undefined;
+    };
+    const byteStream = new ByteStream(littleEndianByteArrayParser, convertToByteArray(bytes));
+    const invoker = () => readDicomElementImplicit(byteStream, callback);
+
+    // Act/Assert
+    // item tag (FFFE,E000) not found at offset 8
+    expect(invoker).to.throw();
+  });
+
+   it('bytes resembling an end-of-sequence tag look like an implicit SQ item when using a callback that returns true', () => {
+    // Arrange
+    // (7fe0,0010)                                           11
+    const bytes = [0xe0, 0x7f, 0x10, 0x00, 0x0B, 0x00, 0x00, 0x00,
+      // Looks like a sequence delimiter tag, but isn't since it's within pixel data
+      0xfe, 0xff, 0xdd, 0xe0, 0x0A, 0x00, 0x00, 0x00,
+      0x12, 0x43, 0x98,
+    ];
+    const callback = (tag) => {
+      return true;
+    };
+    const byteStream = new ByteStream(littleEndianByteArrayParser, convertToByteArray(bytes));
+    const invoker = () => readDicomElementImplicit(byteStream, callback);
+
+    // Act/Assert
+    // item tag (FFFE,E000) not found at offset 8
+    expect(invoker).to.throw();
+  });
+
+  it('bytes resembling an end-of-sequence tag are not treated like an SQ item when using a callback that returns false', () => {
     // Arrange
     // (7fe0,0010)                              11
     const bytes = [0xe0, 0x7f, 0x10, 0x00, 0x0B, 0x00, 0x00, 0x00,
@@ -188,7 +262,7 @@ describe('readDicomElementImplicit', () => {
       0x12, 0x43, 0x98,
     ];
     const callback = (tag) => {
-      return undefined; // nothing should be interpreted as an SQ
+      return (tag === 'x7fe00010') ? false : undefined;
     };
     const byteStream = new ByteStream(littleEndianByteArrayParser, convertToByteArray(bytes));
 

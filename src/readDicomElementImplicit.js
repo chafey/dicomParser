@@ -9,8 +9,11 @@ import { isPrivateTag } from './util/util.js';
 
 const isSequence = (element, byteStream, vrCallback) => {
   // if a data dictionary callback was provided, use that to verify that the element is a sequence.
-  if (typeof vrCallback !== 'undefined') {
-    return (vrCallback(element.tag) === 'SQ');
+  if (vrCallback !== undefined) {
+    const callbackValue = vrCallback(element.tag);
+    if (callbackValue !== undefined) {
+      return (callbackValue === 'SQ');
+    }
   }
 
   if ((byteStream.position + 4) <= byteStream.byteArray.length) {
