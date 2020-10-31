@@ -62,7 +62,7 @@ try
     var pixelDataElement = dataSet.elements.x7fe00010;
 
     // create a typed array on the pixel data (this example assumes 16 bit unsigned data)
-    var pixelData = new Uint16Array(dataSet.byteArray.buffer, pixelDataElement.dataOffset, pixelDataElement.length);
+    var pixelData = new Uint16Array(dataSet.byteArray.buffer, pixelDataElement.dataOffset, pixelDataElement.length / 2);
 }
 catch(ex)
 {
